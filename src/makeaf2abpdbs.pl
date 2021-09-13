@@ -59,17 +59,30 @@ use lib $FindBin::Bin;
 use strict;
 use makeaf2abpdbsconfig;
 
-CheckDirs(\@makeaf2abpdbsconfig::inDirs,
-          \@makeaf2abpdbsconfig::outDirsRel,
-          \@makeaf2abpdbsconfig::outDirsUnrel);
-BuildAllFiles(\@makeaf2abpdbsconfig::inDirs,
-              \@makeaf2abpdbsconfig::outDirsRel,
-              \@makeaf2abpdbsconfig::outDirsUnrel);
+#*************************************************************************
+# Globals
+$::TYPE_BEST      = 0;
+$::TYPE_RELAXED   = 1;
+$::TYPE_UNRELAXED = 2;
+
+#*************************************************************************
+# Main code
+main();
+
+sub main
+{
+    CheckDirs(\@makeaf2abpdbsconfig::inDirs,
+              @makeaf2abpdbsconfig::outDirsRel,
+              @makeaf2abpdbsconfig::outDirsUnrel);
+    BuildAllFiles(\@makeaf2abpdbsconfig::inDirs,
+                  \@makeaf2abpdbsconfig::outDirsRel,
+                  \@makeaf2abpdbsconfig::outDirsUnrel);
+}
 
 #*************************************************************************
 sub CheckDirs
 {
-    my ($aInDirs, $aOutDirsRel, $aOutDirsUnrel) = @_;
+    my ($aInDirs, @outDirs) = @_;
 
     foreach my $inDir (@$aInDirs)
     {
@@ -80,15 +93,11 @@ sub CheckDirs
         }
     }
     
-    foreach my $outDir (@$aOutDirsRel)
+    foreach my $outDir (@outDirs)
     {
         MakeDir($outDir);
     }
 
-    foreach my $outDir (@$aOutDirsUnrel)
-    {
-        MakeDir($outDir);
-    }
 }
 
 
@@ -120,8 +129,9 @@ sub BuildAllFiles
         foreach my $subdir (@subdirs)
         {
             my $fullDirName = "$inDir/$subdir";
-            BuildFileIfNeeded($outDirRel,   $subdir, $fullDirName, 1);
-            BuildFileIfNeeded($outDirUnrel, $subdir, $fullDirName, 0);
+            BuildFileIfNeeded($outDirRel,   $subdir, $fullDirName, $::TYPE_BEST);
+#            BuildFileIfNeeded($outDirRel,   $subdir, $fullDirName, $::TYPE_RELAXED);
+#            BuildFileIfNeeded($outDirUnrel, $subdir, $fullDirName, $::TYPE_UNRELAXED);
         }
         $outDirIndex++;
     }
@@ -147,8 +157,16 @@ sub ReadSubDirs
 #*************************************************************************
 sub BuildFileIfNeeded
 {
-    my ($dest, $linkname, $src, $relaxed) = @_;
-    my $inFile = $relaxed?"$src/relaxed_model_1.pdb":"$src/unrelaxed_model_1.pdb";
+    my ($dest, $linkname, $src, $type) = @_;
+    my $inFile = "$src/ranked_0.pdb";
+    if($type == $::TYPE_RELAXED)
+    {
+        $inFile = "$src/relaxed_model_1.pdb";
+    }
+    elsif($type == $::TYPE_UNRELAXED)
+    {
+        $inFile = "$src/unrelaxed_model_1.pdb";
+    }
     my $outFile = "$dest/$linkname.pdb";
     
     if(FileNewer($inFile, $outFile) || defined($::f))
@@ -190,7 +208,7 @@ sub ProcessFile
 {
     my($inFile, $outFile) = @_;
     my $tFile = "/var/tmp/mad2abp.pdb.$$" . time();
-    my $exe = "pdbhstrip $inFile | $FindBin::Bin/pdbrmseq GGGGSGGGGSGGGGSGGGGS | pdbchain -c L,H > $tFile";
+    my $exe = "pdbhstrip $inFile | ./pdbrmseq GGGGSGGGGSGGGGSGGGGS | pdbchain -c L,H > $tFile";
     print "$exe\n" if(defined($::v));
     `$exe`;
     $exe = "pdbabnum $tFile > $outFile";
