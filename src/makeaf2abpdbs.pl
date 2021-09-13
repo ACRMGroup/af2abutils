@@ -57,13 +57,14 @@ use lib $FindBin::Bin;
 #use lib abs_path("$FindBin::Bin/../lib");
 
 use strict;
+use makeaf2abpdbsconfig;
 
-my @inDirs       = ("/home/lilian/af2_models_reduced");
-my @outDirsRel   = ("/var/tmp/relaxed");
-my @outDirsUnrel = ("/var/tmp/unrelaxed");
-
-CheckDirs(\@inDirs, \@outDirsRel, \@outDirsUnrel);
-BuildAllFiles(\@inDirs, \@outDirsRel, \@outDirsUnrel);
+CheckDirs(\@makeaf2abpdbsconfig::inDirs,
+          \@makeaf2abpdbsconfig::outDirsRel,
+          \@makeaf2abpdbsconfig::outDirsUnrel);
+BuildAllFiles(\@makeaf2abpdbsconfig::inDirs,
+              \@makeaf2abpdbsconfig::outDirsRel,
+              \@makeaf2abpdbsconfig::outDirsUnrel);
 
 #*************************************************************************
 sub CheckDirs
@@ -189,7 +190,7 @@ sub ProcessFile
 {
     my($inFile, $outFile) = @_;
     my $tFile = "/var/tmp/mad2abp.pdb.$$" . time();
-    my $exe = "pdbhstrip $inFile | ./pdbrmseq GGGGSGGGGSGGGGSGGGGS | pdbchain -c L,H > $tFile";
+    my $exe = "pdbhstrip $inFile | $FindBin::Bin/pdbrmseq GGGGSGGGGSGGGGSGGGGS | pdbchain -c L,H > $tFile";
     print "$exe\n" if(defined($::v));
     `$exe`;
     $exe = "pdbabnum $tFile > $outFile";

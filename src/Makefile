@@ -1,12 +1,10 @@
-BINDIR  = $(HOME)/bin
-SCRDIR  = $(HOME)/scripts
-EXES    = pdbrmseq
-SCRIPTS = makeaf2abpdbs.pl
+BINDIR  = ../bin
+EXES    = pdbrmseq makeaf2abpdbs
 CFLAGS  = -O3 -ansi -Wall -pedantic -Wno-stringop-truncation -I$(HOME)/include -L$(HOME)/lib
 LFLAGS  = -lbiop -lgen -lm -lxml2
 CC      = gcc
 
-all : $(TARGETS)
+all : $(EXES)
 	@echo " "
 	@echo " --- BUILD COMPLETE --- "
 	@echo " "
@@ -19,10 +17,6 @@ makeaf2abpdbs :  makeaf2abpdbs.pl
 
 install :
 	mkdir -p $(BINDIR)
-	cp $(EXES) $(BINDIR)
-	mkdir -p $(SCRDIR)
-	cp -p $(SCRIPTS) $(SCRDIR)
-	(cd $(BINDIR); ln -sf $(SCRDIR)/makeaf2abpdbs.pl makeaf2abpdbs)
-
-
+	cp -p $(EXES) $(BINDIR)
+	cp *.pm $(BINDIR)
 
