@@ -97,7 +97,6 @@ sub CheckDirs
     {
         MakeDir($outDir);
     }
-
 }
 
 
@@ -128,10 +127,23 @@ sub BuildAllFiles
         my @subdirs = ReadSubDirs($inDir);
         foreach my $subdir (@subdirs)
         {
-            my $fullDirName = "$inDir/$subdir";
-            BuildFileIfNeeded($outDirRel,   $subdir, $fullDirName, $::TYPE_BEST);
-#            BuildFileIfNeeded($outDirRel,   $subdir, $fullDirName, $::TYPE_RELAXED);
-#            BuildFileIfNeeded($outDirUnrel, $subdir, $fullDirName, $::TYPE_UNRELAXED);
+            if($subdir =~ /^\d..._\d/)
+            {
+                my $fullDirName = "$inDir/$subdir";
+                if(defined($::n))
+                {
+                    print(STDERR "Would build $subdir\n");
+                }
+                else
+                {
+                    BuildFileIfNeeded($outDirRel,   $subdir, $fullDirName,
+                                      $::TYPE_BEST);
+                    # BuildFileIfNeeded($outDirRel,   $subdir, $fullDirName,
+                    #                   $::TYPE_RELAXED);
+                    # BuildFileIfNeeded($outDirUnrel, $subdir, $fullDirName,
+                    #                   $::TYPE_UNRELAXED);
+                }
+            }
         }
         $outDirIndex++;
     }
@@ -148,6 +160,7 @@ sub ReadSubDirs
     {
         @dirs = grep(-D, readdir($dh));
         @dirs = grep(!/^\.\.?$/, @dirs);
+        @dirs = grep(!/\.zip/, @dirs);
         closedir($dh);
     }
     return(@dirs);
@@ -211,7 +224,7 @@ sub ProcessFile
     my $exe = "pdbhstrip $inFile | ./pdbrmseq GGGGSGGGGSGGGGSGGGGS | pdbchain -c L,H > $tFile";
     print "$exe\n" if(defined($::v));
     `$exe`;
-    $exe = "pdbabnum $tFile > $outFile";
+    $exe = "pdbabnum -c $tFile > $outFile";
     print "$exe\n" if(defined($::v));
     `$exe`;
     unlink($tFile);

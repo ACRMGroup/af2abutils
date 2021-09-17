@@ -1,7 +1,9 @@
 package makeaf2abpdbsconfig;
 
-@inDirs       = ("/home/lilian/af2_models_reduced");
-@outDirsRel   = ("/var/tmp/bestmodels");
+@inDirs       = ("/serv/data/af2/reduceddb/",
+                 "/serv/data/af2/fulldb/",);
+@outDirsRel   = ("/serv/data/af2/af2models/ranked0/reduceddb",
+                 "/serv/data/af2/af2models/ranked0/fulldb");
 @outDirsUnrel = ();
 
 1;
