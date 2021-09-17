@@ -181,10 +181,17 @@ sub BuildFileIfNeeded
         $inFile = "$src/unrelaxed_model_1.pdb";
     }
     my $outFile = "$dest/$linkname.pdb";
-    
-    if(FileNewer($inFile, $outFile) || defined($::f))
+
+    if(-f $inFile)
     {
-        ProcessFile($inFile, $outFile);
+        if(FileNewer($inFile, $outFile) || defined($::f))
+        {
+            ProcessFile($inFile, $outFile);
+        }
+    }
+    else
+    {
+        print STDERR "Warning: $inFile does not exist\n";
     }
 }
 
