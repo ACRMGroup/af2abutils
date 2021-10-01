@@ -127,7 +127,7 @@ sub BuildAllFiles
         my @subdirs = ReadSubDirs($inDir);
         foreach my $subdir (@subdirs)
         {
-            if($subdir =~ /^\d..._\d/)
+            if($subdir =~ /^\d..._\d$/)
             {
                 my $fullDirName = "$inDir/$subdir";
                 if(defined($::n))
