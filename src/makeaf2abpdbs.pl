@@ -212,6 +212,7 @@ sub FileNewer
     my($testFile, $refFile) = @_;
 
     return(1) if((! -e $testFile) || (! -e $refFile));
+    return(1) if( -z $refFile);
 
     my @stats;
     @stats = stat($testFile);
